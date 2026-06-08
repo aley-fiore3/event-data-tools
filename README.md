@@ -4,6 +4,7 @@
 > Built for Cvent, Award Force, Asana, and spreadsheet-heavy workflows.
 
 [![Tests](https://github.com/aley-fiore3/event-data-tools/actions/workflows/tests.yml/badge.svg)](https://github.com/aley-fiore3/event-data-tools/actions/workflows/tests.yml)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aley-fiore3/event-data-tools/blob/main/demo_clean_contacts.ipynb)
 
 ---
 
