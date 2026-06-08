@@ -1,0 +1,18 @@
+first_name,last_name,email,organization,role,category,email_valid,dedup_flag,notes
+Maria,Santos,maria.santos@tamu.edu,Texas A&M University,Judge,Undergraduate,TRUE,FALSE,Duplicate removed: MARIA.SANTOS@tamu.edu
+James,Wilson,jwilson@cu.boulder.edu,University of Colorado Boulder,Judge,Graduate,TRUE,FALSE,
+Sarah,Chen,schen@gmail.cmo,University of Notre Dame,Entrant,Undergraduate,FALSE,FALSE,Invalid email: typo in domain
+Michael,Brown,m.brown@,Colorado State University,Entrant,Undergraduate,FALSE,FALSE,Invalid email: incomplete address
+Jennifer,Lopez-Garcia,jlopez@nd.edu,University of Notre Dame,Entrant,Graduate,TRUE,FALSE,
+Robert,Kim,rkim@outlook.com,Texas A&M University,Advisor,Undergraduate,TRUE,FALSE,Suffix removed: Jr.
+Lisa,Thompson,lisa.t@mailinator.com,University of Delaware,Entrant,Undergraduate,TRUE,FALSE,Note: disposable email domain
+David,Park,dpark@yahoo.com,University of Colorado Boulder,Judge,Graduate,TRUE,FALSE,Duplicate removed: UC Boulder -> normalized
+Amanda,Foster,afoster@tamu.edu,Texas A&M University,Judge,Undergraduate,TRUE,FALSE,Suffix removed: PhD
+Chris,Martinez,,Colorado State University,Entrant,Graduate,FALSE,FALSE,Missing email
+Emily,Watson,ewatson@outlok.com,University of Notre Dame,Advisor,Graduate,FALSE,FALSE,Invalid email: typo in domain
+Kevin,O'Brien,kobrien@udel.edu,University of Delaware,Entrant,Undergraduate,TRUE,FALSE,
+,ghost,ghost@nowhere.com,Mystery University,Entrant,Undergraduate,TRUE,FALSE,Missing name: no first/last detected
+Priya,Patel,ppatel@gmail.com,Colorado State University,Judge,Graduate,TRUE,FALSE,Duplicate removed: priya.patel@gmail.com
+Tom,Zhang,tzhang@throwaway.email,Texas A&M University,Entrant,Undergraduate,TRUE,FALSE,Note: disposable email domain
+Rachel,Adams,radams@nd.edu,University of Notre Dame,Advisor,Undergraduate,TRUE,FALSE,Title removed: Mrs.
+Ben,Taylor,btaylor@cu.boulder.edu,University of Colorado Boulder,Entrant,Graduate,TRUE,FALSE,Suffix removed: III
