@@ -1,68 +1,108 @@
 """
-Basic tests for clean_contacts.py
-Run with: python -m pytest tests/
+Tests for event data cleaning logic.
+Run with: pytest tests/ -v
 """
-import io
-import sys
-import os
-import pandas as pd
+import re
 import pytest
 
-# Add scripts/ to path so we can import the module
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+
+# ── Helpers (inline implementations for testability) ─────────────────────────
+
+EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+
+def is_valid_email(email: str) -> bool:
+    return bool(EMAIL_RE.match(email.strip()))
 
 
-def test_email_validation():
-      """Valid emails should pass, invalid ones should be flagged."""
-      valid_emails = ['user@example.com', 'test.user+tag@domain.org']
-      invalid_emails = ['notanemail', 'missing@', '@nodomain.com', '']
-
-    import re
-    email_pattern = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-
-    for email in valid_emails:
-              assert email_pattern.match(email), f"Expected valid: {email}"
-
-    for email in invalid_emails:
-              assert not email_pattern.match(email), f"Expected invalid: {email}"
+def split_name(full_name: str) -> tuple:
+    parts = full_name.strip().split()
+    if len(parts) == 0:
+        return ('', '')
+    elif len(parts) == 1:
+        return (parts[0], '')
+    else:
+        return (parts[0], ' '.join(parts[1:]))
 
 
-def test_name_splitting():
-      """Full names should split correctly into first and last."""
-      test_cases = [
-          ('John Smith', 'John', 'Smith'),
-          ('Mary Jane Watson', 'Mary', 'Jane Watson'),
-          ('Madonna', 'Madonna', ''),
-      ]
-
-    for full_name, expected_first, expected_last in test_cases:
-              parts = full_name.split(' ', 1)
-              first = parts[0]
-              last = parts[1] if len(parts) > 1 else ''
-              assert first == expected_first, f"First name mismatch for {full_name}"
-              assert last == expected_last, f"Last name mismatch for {full_name}"
+def deduplicate(records: list, key: str) -> list:
+    seen = set()
+    result = []
+    for r in records:
+        val = r.get(key, '').lower().strip()
+        if val not in seen:
+            seen.add(val)
+            result.append(r)
+    return result
 
 
-def test_deduplication():
-      """Duplicate emails should be removed, keeping first occurrence."""
-      data = pd.DataFrame({
-          'email': ['a@test.com', 'b@test.com', 'a@test.com', 'c@test.com'],
-          'name': ['Alice', 'Bob', 'Alice Duplicate', 'Carol']
-      })
-      deduped = data.drop_duplicates(subset='email', keep='first')
-      assert len(deduped) == 3
-      assert deduped[deduped['email'] == 'a@test.com']['name'].values[0] == 'Alice'
+def normalize_org(name: str, org_map: dict) -> str:
+    return org_map.get(name.strip().lower(), name.strip())
+
+
+# ── Tests ─────────────────────────────────────────────────────────────────────
+
+def test_email_validation_valid():
+    valid = ['user@example.com', 'test.user+tag@domain.org', 'a@b.io']
+    for email in valid:
+        assert is_valid_email(email), f"Expected valid: {email}"
+
+
+def test_email_validation_invalid():
+    invalid = ['notanemail', 'missing@', '@nodomain.com', '', '   ']
+    for email in invalid:
+        assert not is_valid_email(email), f"Expected invalid: {email}"
+
+
+def test_name_splitting_full():
+    first, last = split_name('John Smith')
+    assert first == 'John'
+    assert last == 'Smith'
+
+
+def test_name_splitting_three_parts():
+    first, last = split_name('Mary Jane Watson')
+    assert first == 'Mary'
+    assert last == 'Jane Watson'
+
+
+def test_name_splitting_single():
+    first, last = split_name('Madonna')
+    assert first == 'Madonna'
+    assert last == ''
+
+
+def test_deduplication_removes_duplicates():
+    records = [
+        {'email': 'a@example.com', 'name': 'Alice'},
+        {'email': 'b@example.com', 'name': 'Bob'},
+        {'email': 'A@EXAMPLE.COM', 'name': 'Alice Duplicate'},
+    ]
+    result = deduplicate(records, 'email')
+    assert len(result) == 2
+    assert result[0]['name'] == 'Alice'
+
+
+def test_deduplication_preserves_order():
+    records = [
+        {'email': 'z@example.com'},
+        {'email': 'a@example.com'},
+        {'email': 'z@example.com'},
+    ]
+    result = deduplicate(records, 'email')
+    assert result[0]['email'] == 'z@example.com'
+    assert result[1]['email'] == 'a@example.com'
 
 
 def test_org_normalization():
-      """Organization names should be normalized to canonical form."""
-      org_map = {
-          'ACME Corp': 'ACME Corporation',
-          'Acme corp': 'ACME Corporation',
-          'acme': 'ACME Corporation',
-      }
-      raw_orgs = ['ACME Corp', 'Acme corp', 'acme']
-      for raw in raw_orgs:
-                normalized = org_map.get(raw, raw)
-                assert normalized == 'ACME Corporation', f"Org not normalized: {raw}"
-        
+    org_map = {
+        'acme corp': 'ACME Corporation',
+        'ibm': 'IBM',
+    }
+    assert normalize_org('acme corp', org_map) == 'ACME Corporation'
+    assert normalize_org('IBM', org_map) == 'IBM'
+    assert normalize_org('Unknown Co', org_map) == 'Unknown Co'
+
+
+def test_org_normalization_strips_whitespace():
+    org_map = {'ibm': 'IBM'}
+    assert normalize_org('  ibm  ', org_map) == 'IBM'
