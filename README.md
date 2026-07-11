@@ -117,6 +117,16 @@ The test suite covers email validation, name splitting, deduplication logic, and
 
 ---
 
+---
+
+## Related Work
+
+- **[claude-prompt-library](https://github.com/aley-fiore3/claude-prompt-library)** — Prompt library documenting how these scripts are paired with Claude in real engagements
+- **[fiore3-automation-demos](https://github.com/aley-fiore3/fiore3-automation-demos)** — Automation demos and case studies showing this toolset deployed in real workflows
+- **[event-reconciliation-dashboard](https://github.com/aley-fiore3/event-reconciliation-dashboard)** — No-code Streamlit UI built on top of this same cleaning and reconciliation logic
+
+---
+
 ## License
 
 MIT — use it, adapt it, ship it.
